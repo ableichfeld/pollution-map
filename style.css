@@ -50,6 +50,7 @@ body{
   align-items: center;
   box-sizing: border-box;
   padding: 0px 10px;
+  border-bottom: #7e7e7e 3px solid;
 }
 
 .barText{
