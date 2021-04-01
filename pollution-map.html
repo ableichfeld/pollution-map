@@ -9,22 +9,36 @@
   </head>
   <body>
     <div id="contentContainer">
-      <div id="mapid"></div>
+      <div id="mapContainer">
+        <div id="mapid">  </div>
+        <div id="legend">
+          <div id="legendText">Marker color represents population density, which can be used as a proxy for urbanization.</div>
+          <div id="colorBar">
+            <span class="barText" id="barText1">1,000 people/mile<sup>2</sup></span>
+            <div id="barFiller"></div>
+            <span class="barText" id="barText2">37,000 people/mile<sup>2</sup></span>
+          </div>
+        </div>
+      </div>
       <div id="drawitContainer">
         <h2>Concentrations of NO<sub>2</sub> decreased following the start of pandemic lockdowns</h2>
         <p class="introText">Select a city from the map to explore how COVID-19 lockdowns affected air pollution in the local area.</p>
         <div id="drawit"></div>
+        <div id="details"></div>
       </div>
     </div>
-    <div id="filler"></div>
+    <div id="caption">
+      <p>Do you think you know what happened to NO<sub>2</sub> levels over the course of pandemic lockdowns? Click the blue circles to pull up interactive graphs — you can draw your guess about how a locality’s pollution levels have changed over time, and we’ll show you how close you were. The shades of blue — per the key above — indicate a town or city's population density.</p>
+      <p>The map uses data from <a href="http://www.bostonplans.org/getattachment/8349ada7-6cc4-4d0a-a5d8-d2fb966ea4fe" target="_blank">the City of Boston</a> (for demographicson the Boston neighborhoods of Dorchester, Fenway and Roxbury), <a href="https://www.epa.gov/aqs" target="_blank">the EPA</a> (for NO<sub>2</sub> data on towns, cities and neighborhoods) and <a href="https://www.census.gov/quickfacts/fact/table/US/PST045219" target="_blank">the U.S. Census Bureau</a> (for town, city and statedemographics).</p>
+    </div>
 
     <script>
 
       var mymap = L.map('mapid', {scrollWheelZoom:false}).setView([42.1321289,-71.8349482], 8);
       //Adjust so zoom level can be 8.5?
       //Also, make it so the map can't zoom in/out?
-      L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
-        attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+      L.tileLayer('https://api.maptiler.com/maps/pastel/{z}/{x}/{y}.png?key=eWSwnAVqaKUpI4JWgj5a', {
+        attribution: "\u003ca href=\"https://www.maptiler.com/copyright/\" target=\"_blank\"\u003e\u0026copy; MapTiler\u003c/a\u003e \u003ca href=\"https://www.openstreetmap.org/copyright\" target=\"_blank\"\u003e\u0026copy; OpenStreetMap contributors\u003c/a\u003e",
         //Change so it's not a mercator projection? Different tile layer.
         maxZoom: 18,
         id: 'mapbox/streets-v11',
@@ -33,48 +47,152 @@
         accessToken: 'pk.eyJ1IjoiYWJsZWljaGZlbGQiLCJhIjoiY2p1azZ3dGoxMXN2ZjQ1bzI0Z3U5aDFqZCJ9.aprixnlrY_kPCaj-4H3XSw'
       }).addTo(mymap);
 
-      var chelmsford = L.marker([42.612085, -71.306986]).addTo(mymap).bindTooltip("<p>Chelmsford, MA</p>");
-      var chicopee = L.marker([42.19438, -72.555112]).addTo(mymap).bindTooltip("<p>Chicopee, MA</p>");
-      var fenwayKenmore = L.marker([42.348873, -71.097163]).addTo(mymap).bindTooltip("<p>Fenway, Boston, MA</p>");
-      var lynn = L.marker([42.474642, -70.970816]).addTo(mymap).bindTooltip("<p>Lynn, MA</p>");
-      var milton = L.marker([42.211774, -71.11397]).addTo(mymap).bindTooltip("<p>Milton, MA</p>");
-      var dudleySq = L.marker([42.3295, -71.0826]).addTo(mymap).bindTooltip("<p>Roxbury, Boston, MA</p>");
-      var springfield = L.marker([42.120229, -72.584503]).addTo(mymap).bindTooltip("<p>Springfield, MA</p>");
-      var ware = L.marker([42.298493, -72.334079]).addTo(mymap).bindTooltip("<p>Ware, MA</p>");
-      var worcester = L.marker([42.263955, -71.794322]).addTo(mymap).bindTooltip("<p>Worcester, MA</p>");
+      var chelmsfordIcon = L.icon({
+        iconUrl: 'images/city-markers_Chelmsford.png',
+        shadowUrl: 'images/city-markers_Shadow.png',
+        iconSize: [25, 25],
+        shadowSize: [34, 34],
+        iconAnchor: [12.5, 12.5],
+        shadowAnchor: [14.5, 14.5],
+        popupAnchor: [0, -13.5]
+      });
 
-      var stations = L.layerGroup([chelmsford, chicopee, fenwayKenmore, lynn, milton, dudleySq, springfield, ware, worcester]);
+      var chicopeeIcon = L.icon({
+        iconUrl: 'images/city-markers_Chicopee.png',
+        shadowUrl: 'images/city-markers_Shadow.png',
+        iconSize: [25, 25],
+        shadowSize: [34, 34],
+        iconAnchor: [12.5, 12.5],
+        shadowAnchor: [14.5, 14.5],
+        popupAnchor: [0, -13.5]
+      });
+
+      var dorchesterIcon = L.icon({
+        iconUrl: 'images/city-markers_Dorchester.png',
+        shadowUrl: 'images/city-markers_Shadow.png',
+        iconSize: [25, 25],
+        shadowSize: [34, 34],
+        iconAnchor: [12.5, 12.5],
+        shadowAnchor: [14.5, 14.5],
+        popupAnchor: [0, -13.5]
+      });
+
+      var fenwayKenmoreIcon = L.icon({
+        iconUrl: 'images/city-markers_Fenway.png',
+        shadowUrl: 'images/city-markers_Shadow.png',
+        iconSize: [25, 25],
+        shadowSize: [34, 34],
+        iconAnchor: [12.5, 12.5],
+        shadowAnchor: [14.5, 14.5],
+        popupAnchor: [0, -13.5]
+      });
+
+      var miltonIcon = L.icon({
+        iconUrl: 'images/city-markers_Milton.png',
+        shadowUrl: 'images/city-markers_Shadow.png',
+        iconSize: [25, 25],
+        shadowSize: [34, 34],
+        iconAnchor: [12.5, 12.5],
+        shadowAnchor: [14.5, 14.5],
+        popupAnchor: [0, -13.5]
+      });
+
+      var roxburyIcon = L.icon({
+        iconUrl: 'images/city-markers_Roxbury.png',
+        shadowUrl: 'images/city-markers_Shadow.png',
+        iconSize: [25, 25],
+        shadowSize: [34, 34],
+        iconAnchor: [12.5, 12.5],
+        shadowAnchor: [14.5, 14.5],
+        popupAnchor: [0, -13.5]
+      });
+
+      var springfieldIcon = L.icon({
+        iconUrl: 'images/city-markers_Springfield.png',
+        shadowUrl: 'images/city-markers_Shadow.png',
+        iconSize: [25, 25],
+        shadowSize: [34, 34],
+        iconAnchor: [12.5, 12.5],
+        shadowAnchor: [14.5, 14.5],
+        popupAnchor: [0, -13.5]
+      });
+
+      var wareIcon = L.icon({
+        iconUrl: 'images/city-markers_Ware.png',
+        shadowUrl: 'images/city-markers_Shadow.png',
+        iconSize: [25, 25],
+        shadowSize: [34, 34],
+        iconAnchor: [12.5, 12.5],
+        shadowAnchor: [14.5, 14.5],
+        popupAnchor: [0, -13.5]
+      });
+
+      var worcesterIcon = L.icon({
+        iconUrl: 'images/city-markers_Worcester.png',
+        shadowUrl: 'images/city-markers_Shadow.png',
+        iconSize: [25, 25],
+        shadowSize: [34, 34],
+        iconAnchor: [12.5, 12.5],
+        shadowAnchor: [14.5, 14.5],
+        popupAnchor: [0, -13.5]
+      });
+
+      var chelmsford = L.marker([42.612085, -71.306986], {icon: chelmsfordIcon}).addTo(mymap).bindTooltip("<p>Chelmsford, MA</p>");
+      var chicopee = L.marker([42.19438, -72.555112], {icon: chicopeeIcon}).addTo(mymap).bindTooltip("<p>Chicopee, MA</p>");
+      var dorchester = L.marker([42.325186, -71.056061], {icon: dorchesterIcon}).addTo(mymap).bindTooltip("<p>Dorchester, Boston, MA</p>");
+      var fenwayKenmore = L.marker([42.348873, -71.097163], {icon: fenwayKenmoreIcon}).addTo(mymap).bindTooltip("<p>Fenway, Boston, MA</p>");
+      //var lynn = L.marker([42.474642, -70.970816], {icon: lynnIcon}).addTo(mymap).bindTooltip("<p>Lynn, MA</p>");
+      var milton = L.marker([42.211774, -71.11397], {icon: miltonIcon}).addTo(mymap).bindTooltip("<p>Milton, MA</p>");
+      var dudleySq = L.marker([42.3295, -71.0826], {icon: roxburyIcon}).addTo(mymap).bindTooltip("<p>Roxbury, Boston, MA</p>");
+      var springfield = L.marker([42.120229, -72.584503], {icon: springfieldIcon}).addTo(mymap).bindTooltip("<p>Springfield, MA</p>");
+      var ware = L.marker([42.298493, -72.334079], {icon: wareIcon}).addTo(mymap).bindTooltip("<p>Ware, MA</p>");
+      var worcester = L.marker([42.263955, -71.794322], {icon: worcesterIcon}).addTo(mymap).bindTooltip("<p>Worcester, MA</p>");
+
+      var stations = L.layerGroup([chelmsford, chicopee, fenwayKenmore, milton, dudleySq, springfield, ware, worcester]);
 
       chelmsford.on('click', function(bostonDrawit){
-        document.getElementById('drawit').innerHTML = '<iframe src="https://drawit.mucollective.co/vis/v1bjfw3wKKYOuAbYvNj7aYgz30E3/-MWm2pzGQcwsySZu5Vg5" width="700" height="500"></iframe>'
+        document.getElementById('drawit').innerHTML = '<iframe src="https://drawit.mucollective.co/vis/v1bjfw3wKKYOuAbYvNj7aYgz30E3/-MWm2pzGQcwsySZu5Vg5" width="700" height="500"></iframe>';
+        document.getElementById('details').innerHTML = '<p class="detailsText"><i>Population Density:</i> 1,511 people/mile<sup>2</sup> | <i>Percent people of color:</i> 14.8%</p>'
       });
 
       chicopee.on('click', function(bostonDrawit){
         document.getElementById('drawit').innerHTML = '<iframe src="https://drawit.mucollective.co/vis/v1bjfw3wKKYOuAbYvNj7aYgz30E3/-MWqyXGXazNC8hsE-Y5O" width="700" height="500"></iframe>'
+        document.getElementById('details').innerHTML = '<p class="detailsText"><i>Population Density:</i> 2,422.1 people/mile<sup>2</sup> | <i>Percent people of color:</i> 28.8%</p>'
+      });
+
+      dorchester.on('click', function(bostonDrawit){
+        document.getElementById('drawit').innerHTML = '<iframe src="https://drawit.mucollective.co/vis/v1bjfw3wKKYOuAbYvNj7aYgz30E3/-MXAMxnQ107UhJVHMA66" width="700" height="500"></iframe>'
+        document.getElementById('details').innerHTML = '<p class="detailsText"><i>Population Density:</i> 2,422.1 people/mile<sup>2</sup> | <i>Percent people of color:</i> 28.8%</p>'
       });
 
       fenwayKenmore.on('click', function(bostonDrawit){
         document.getElementById('drawit').innerHTML = '<iframe src="https://drawit.mucollective.co/vis/v1bjfw3wKKYOuAbYvNj7aYgz30E3/-MWm2pzGQcwsySZu5Vg5" width="700" height="500"></iframe>'
+        document.getElementById('details').innerHTML = '<p class="detailsText"><i>Population Density:</i> 37,043.2 people/mile<sup>2</sup> | <i>Percent people of color:</i> 39.9%</p>'
       });
 
       milton.on('click', function(bostonDrawit){
         document.getElementById('drawit').innerHTML = '<iframe src="https://drawit.mucollective.co/vis/v1bjfw3wKKYOuAbYvNj7aYgz30E3/-MWqzd9qAv2aVGoiMNqn" width="700" height="500"></iframe>'
+        document.getElementById('details').innerHTML = '<p class="detailsText"><i>Population Density:</i> 1,511 people/mile<sup>2</sup> | <i>Percent people of color:</i> 28.3%</p>'
       });
 
       dudleySq.on('click', function(bostonDrawit){
         document.getElementById('drawit').innerHTML = '<iframe src="https://drawit.mucollective.co/vis/v1bjfw3wKKYOuAbYvNj7aYgz30E3/-MWZlYC2bXcvEMk5fyTZ" width="700" height="500"> </iframe>'
+        document.getElementById('details').innerHTML = '<p class="detailsText"><i>Population Density:</i> 16,092.4 people/mile<sup>2</sup> | <i>Percent people of color:</i> 90.5%</p>'
       });
 
       springfield.on('click', function(bostonDrawit){
         document.getElementById('drawit').innerHTML = '<iframe src="https://drawit.mucollective.co/vis/v1bjfw3wKKYOuAbYvNj7aYgz30E3/-MWr0S1b302WF1ZJEUXG" width="700" height="500"></iframe>'
+        document.getElementById('details').innerHTML = '<p class="detailsText"><i>Population Density:</i> 4,803.4 people/mile<sup>2</sup> | <i>Percent people of color:</i> 68.8%</p>'
       });
 
       ware.on('click', function(bostonDrawit){
         document.getElementById('drawit').innerHTML = '<iframe src="https://drawit.mucollective.co/vis/v1bjfw3wKKYOuAbYvNj7aYgz30E3/-MWr1632TJw4ya2oLnh4" width="700" height="500"></iframe>'
+        document.getElementById('details').innerHTML = '<p class="detailsText"><i>Population Density:</i> 998.1 people/mile<sup>2</sup> | <i>Percent people of color:</i> 13.4%</p>'
       });
 
       worcester.on('click', function(bostonDrawit){
         document.getElementById('drawit').innerHTML = '<iframe src="https://drawit.mucollective.co/vis/v1bjfw3wKKYOuAbYvNj7aYgz30E3/-MWr23vqWgNqqqjA-Nmc" width="700" height="500"></iframe>'
+        document.getElementById('details').innerHTML = '<p class="detailsText"><i>Population Density:</i> 4,844.5 people/mile<sup>2</sup> | <i>Percent people of color:</i> 44.6%</p>'
       });
 
     </script>
